@@ -1,4 +1,5 @@
-from polymerMole.mainDefs import r2pdb, makepmlFile
+from polymerMole.r2pdb import r2pdb
+from polymerMole.makepmlFile import makepmlFile
 import os
 #baseNames = {'./exampleData/example1/':65}
 baseNames = {'./exampleData/example2/':100}
@@ -46,7 +47,7 @@ for baseName in baseNames.keys():
             else:
                 OutName = baseName+"data/snap"+str(savept)+suffix+".png"
             makepmlFile(OutName=OutName, colorOption=colorOption,
-                        Ncolors=Ncolors, closePymol=False)
+                        Ncolors=Ncolors, closePymol=True)
 
             os.system("pymol autoGen.pml")
         
