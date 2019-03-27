@@ -7,7 +7,7 @@ def r2pdb(xyzFileName, nboundary=1000, skip=1, methFileName=None,
           bindFileName=None, Ncolors=default_Ncolors, xlimits=None,
           color_type="meth", color_cohisn=False, outFileName="temp.pdb",
           polymerLengthFile=None, circles = [(31.0,[32.0,32.0,32.0])],
-          scalebar=None ):
+          scalebar=None, cube=None, ylimits=None, zlimits=None, period=None):
     
     """Convert xyzFileName into a pdb file ready for pymol.
 
@@ -18,7 +18,9 @@ def r2pdb(xyzFileName, nboundary=1000, skip=1, methFileName=None,
     bindFileName (str): Name of file to get cohesin sequence from.
     Ncolors (int): Number of colors.
     xlimits (list): Only display in range [lower,upper], e.g. [32, 36]
-    colorType (str): One of "meth", "sequential", or "polymer"
+    ylimits (list): Similar to xlimits
+    zlimits (list): Similar to xlimits
+    colorType (str): One of "meth", "sequential", "meth10", or "polymer"
     color_cohisn (logical): Whether to color cohisin beads
     outFileName (str): Name of oubput pdb file
     polymerLengthFile (str): Name of file with lengths of polymers
@@ -61,11 +63,14 @@ def r2pdb(xyzFileName, nboundary=1000, skip=1, methFileName=None,
     index=[];
     n=0;
     count=0;
-    skip=5
+    if not period is None:
+        period_list = []
     with open(xyzFileName) as f:
         for line in f:
             count=count+1
             if count%skip != 0:
+                if count > 390387:
+                    break
                 if color_cohisn:
                     # make sure to include all cohsin
                     if leftends[count-1] == 0:
@@ -76,15 +81,34 @@ def r2pdb(xyzFileName, nboundary=1000, skip=1, methFileName=None,
             x=float(temp[0])
             y=float(temp[1])
             z=float(temp[2])
-            #[x,y,z] = rotateZ(np.array([x,y,z]),-np.pi/4+np.pi/2)
+            #[x,y,z] = rotateZ(np.array([x,y,z]),-np.pi/4)
             #[x,y,z] = rotateX(np.array([x,y,z]),-np.pi/3)
 
             if (xlimits != None):
                 if  x < xlimits[0]:
                     continue
-
                 if x > xlimits[1]:
                     continue
+            if (ylimits != None):
+                if y < ylimits[0]:
+                    continue
+                if y > ylimits[1]:
+                    continue
+            if (zlimits != None):
+                if z < zlimits[0]:
+                    continue
+                if z > zlimits[1]:
+                    continue
+            
+            if not period is None:
+                period_list.append((int(x//period[0]),
+                                    int(y//period[1]),
+                                    int(z//period[2]))) 
+                x = x%period[0]
+                y = y%period[1]
+                z = z%period[2]
+
+
 
             index.append(count)
             X.append(x)
@@ -92,12 +116,19 @@ def r2pdb(xyzFileName, nboundary=1000, skip=1, methFileName=None,
             Z.append(z)
             #AB.append(int(temp[3]))
             if (methFileName != None):
-                if(methFileName != methFileName):
-                    METH.append(temp[4])
+                if(methFileName == xyzFileName):
+                    METH.append(int(temp[3]))
                 else:
-                    METH.append(AllMeth[count-1])
+                    try:
+                        METH.append(AllMeth[count-1])
+                    except:
+                        print("count -1")
+                        print(count-1)
+                        print(xyzFileName)
+                        raise
     nbeads=len(X)
 
+    
     # -------------------------
     #  Set atom types
     # -------------------------
@@ -107,6 +138,8 @@ def r2pdb(xyzFileName, nboundary=1000, skip=1, methFileName=None,
         atomType = SetAtomTypeSequentially(nbeads,Ncolors)
     elif color_type == "polymer":
         atomType = SetAtomTypeByPolymer(polymerLengthFile,index)
+    elif color_type == "meth10":
+        atomType = SetAtomTypeVariableMethyaltionLevel(METH)
     else:
         raise ValueError("Not an recognized color_type")
 
@@ -139,18 +172,24 @@ def r2pdb(xyzFileName, nboundary=1000, skip=1, methFileName=None,
         z=Z[n]
         print('HETATM%5d %s %s          %8.3f%8.3f%8.3f  1.00  1.00           C'
                 %(n+1,atomName,resname,x,y,z),file=file_obj)
+        Ntot=Ntot+1;
         if n != 0:
             if (index[n]==index[n-1]+skip):
+                if not period is None:
+                    if period_list[n] != period_list[n-1]:
+                        continue # beads in different periods
                 print('CONECT%5d%5d'%(n, n+1),file=file_obj)
-        Ntot=Ntot+1;
 
 
     # -----------------
     #  Draw confinement
     # -----------------
-    for info in circles:
-        Ntot = drawConfinement(info[0],info[1], file_obj, Ntot, nboundary, nbeads)
+    if circles != None:
+        for info in circles:
+            Ntot = drawConfinement(info[0],info[1], file_obj, Ntot, nboundary, nbeads)
 
+    if cube != None:
+        Ntot = drawCube(cube[0], cube[1], file_obj, Ntot)
 
     # ----------------
     #   Draw scalebar
