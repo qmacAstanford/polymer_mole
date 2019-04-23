@@ -59,7 +59,6 @@ baseNames = {'../../multi_with_CTCFs/with_CTCFs_mun1p0copy1/':20}
 baseNames = {'../../multi_with_CTCFs/without_LEFs/':20}
 baseNames = {'../../with_CTCFs_no_initial_field/':26}
 baseNames = {'../../with_CTCFs_no_initial_field/':24}
-baseNames = {'../../with_CTCFs_no_initial_field2/':57}
 baseNames = {'../../Tenkb_woCTCF/':55}
 baseNames = {'../../Initial1/':0}
 baseNames = {}
@@ -67,21 +66,20 @@ for cup in ['0p0001','0p1','0p2','0p4','0p8','1p6']:
     for chi in ['240','480','1000','2000']:
         baseNames['../../multiTenkb_woCTCF/Tenkb_woCTCF_2_cupn'+cup+'_chin'+chi+'/']=45
 baseNames = {}
-for cup in ['0p2', '0p4', '0p8']: # ['0p0001','0p1','0p2','0p4','0p8','1p6']:
-    for chi in ['240', '480']: #['240','480','1000','2000']:
-        baseNames['../../multiInitCond1/Initial1_cupn'+cup+'_chin'+chi+'/']=15
+for cup in ['0p0001','0p1','0p2','0p4','0p8','1p6']:
+    for chi in ['240','480','1000','2000']:
+        baseNames['../../multiInitCond1/Initial1_cupn'+cup+'_chin'+chi+'/']=75
+baseNames = {'../../multiInitCond1/Initial1_cupn0p4_chin480/':75}
+baseNames = {'../../with_CTCFs_no_initial_field2/':59}
+
+
+kwargs ={}
 
 for baseName in baseNames.keys():
     savept_max = baseNames[baseName]
-    for savept in [0,1,5,15]: #[savept_max]: #[2,3,4,7,8,9,12]: #[savept_max]: #[0,5,9]: #range(0,111,20): 
-        recolor = False
-        if recolor:
-            methFile = "recolor100.txt"
-        else:
-            #methFile = baseName+"input/meth"
-            methFile = baseName+"input/ab"
-        
-        for rep in [0]: #range(1,8): #range(2,10): #[2,4,6,7,8,9,10,11,12,14]:
+    for savept in [0,1,10,59]: #[savept_max]: #[2,3,4,7,8,9,12]: #[savept_max]: #[0,5,9]: #range(0,111,20):
+
+        for rep in [10, 11]: #range(1,8): #range(2,10): #[2,4,6,7,8,9,10,11,12,14]:
             if True:
                 suffix = "v"+str(rep)
             else:
@@ -90,193 +88,206 @@ for baseName in baseNames.keys():
             xyzFileName=baseName+"data/r"+str(savept)+suffix
             if baseName in ["../../multiTenkb_woCTCF/Tenkb_woCTCF_2_cupn0p0001_chin240/"]:
                 continue
-            skip = 3
-            cube=None
-            xlimits=None
-            ylimits=None
-            zlimits=None
+            kwargs['skip'] = 3
 
+            kwargs['closePymol']=True
             image = "Cube_full_CTCFs"
-            image = "Cube_full"
-            image = "EpiColor22"
             image = "chrom22"
+            image = "EpiColor22"
+            image = "Cube_full"
+
+            if (image=="CTCFs_in_sphere"):
+                kwargs['skip']=5
+                kwargs['Ncolors'] = None
+                kwargs['color_type'] = "meth"
+                kwargs['colorOption'] = "H3K9me3"
+                kwargs['circles'] = [(31,[32.0,32.0,32.0])]
+                kwargs['xlimits'] = None
+                #kwargs['scalebar'] = None
+                kwargs['methFileName'] = baseName+"input/meth"
+                kwargs['color_cohisn']=True
+                kwargs['bindFileName']=baseName+"input/bindpairs"
+                kwargs['color_palette']=None
+                kwargs['ball_radius'] = 0.198
+                kwargs['stick_radius']=0.05
+                #kwargs['cube']=[1,63]
+                kwargs['view']="cube"
+                kwargs['polymerLengthFile'] = None
+                kwargs['ylimits'] = None
+
+
 
             if (image=="chrom22"): #color polymers
-                polymerLengthFile = baseName+"input/polyLengths"
-                Ncolors = sum(1 for line in open(polymerLengthFile))
-                color_type = "polymer"
-                colorOption="Aseries"
-                circles = [(15,[16.0,16.0,16.0])]
-                xlimits=[16, 20]
-                scalebar=500/100
-                methFileName = None
-                bindFileName = None
-                color_cohisn = False
-                color_palette="hls"
-                ball_radius=0.07
-                stick_radius=0.07
-                view="chrom10"
+                kwargs['polymerLengthFile'] = baseName+"input/polyLengths"
+                kwargs['Ncolors'] = sum(1 for line in
+                                        open(kwargs['polymerLengthFile']))
+                kwargs['color_type'] = "polymer"
+                kwargs['colorOption']="Aseries"
+                kwargs['circles'] = [(15,[16.0,16.0,16.0])]
+                kwargs['xlimits']=[16, 20]
+                #kwargs['scalebar']=500/100
+                kwargs['methFileName'] = None
+                kwargs['bindFileName'] = None
+                kwargs['color_cohisn'] = False
+                kwargs['color_palette']="hls"
+                kwargs['ball_radius']=0.07
+                kwargs['stick_radius']=0.07
+                kwargs['view']="chrom22"
+                kwargs['highlightPolymers'] = [1, 15, 18]
 
             if (image == "EpiColor22"): #
-                polymerLengthFile = baseName+"input/polyLengths"
-                Ncolors = 50
-                color_type = "meth10"
-                colorOption="Aseries"
-                circles = [(15,[16.0,16.0,16.0])]
-                xlimits=[16, 20]
-                scalebar=500/100
-                methFileName = baseName+"input/ab"
-                bindFileName = baseName+"input/bindpairs"
-                color_cohisn = False
-                color_palette="coolwarm"
-                ball_radius=0.07
-                stick_radius=0.07
-                view="chrom10"
+                kwargs['polymerLengthFile'] = baseName+"input/polyLengths"
+                kwargs['Ncolors'] = 50
+                kwargs['color_type'] = "meth10"
+                kwargs['colorOption']="Aseries"
+                kwargs['circles'] = [(15,[16.0,16.0,16.0])]
+                kwargs['xlimits']=[16, 20]
+                #kwargs['scalebar']=500/100
+                kwargs['methFileName'] = baseName+"input/ab"
+                kwargs['bindFileName'] = baseName+"input/bindpairs"
+                kwargs['color_cohisn'] = False
+                kwargs['color_palette']="coolwarm"
+                kwargs['ball_radius']=0.07
+                kwargs['stick_radius']=0.07
+                kwargs['view']="chrom22"
 
             if (image=="New"):
-                skip=1
-                Ncolors = None
-                color_type = "meth"
-                colorOption = "H3K9me3"
-                circles = None
-                xlimits = [0,15]
-                scalebar = None
-                methFileName = baseName+"input/meth"
-                color_cohisn=False
-                bindFileName=None
-                color_palette=None
-                ball_radius = 0.198
-                stick_radius=0.05
-                cube=[1,63]
-                view="cube"
-                polymerLengthFile = None
-                ylimits = None
+                kwargs['skip']=1
+                kwargs['Ncolors'] = None
+                kwargs['color_type'] = "meth"
+                kwargs['colorOption']= "H3K9me3"
+                kwargs['circles'] = None
+                kwargs['xlimits'] = [0,15]
+                kwargs['scalebar'] = None
+                kwargs['methFileName'] = baseName+"input/meth"
+                kwargs['color_cohisn']=False
+                kwargs['bindFileName']=None
+                kwargs['color_palette']=None
+                kwargs['ball_radius'] = 0.198
+                kwargs['stick_radius']=0.05
+                kwargs['cube']=[1,63]
+                kwargs['view']="cube"
+                kwargs['polymerLengthFile'] = None
+                kwargs['ylimits'] = None
 
 
             if (image=="Cube"): # Cube
-                skip=1
-                Ncolors = None
-                color_type = "meth"
-                colorOption = "H3K9me3"
-                circles = None
-                xlimits = None
-                scalebar = None
-                methFileName = baseName+"input/meth"
-                color_cohisn=False
-                bindFileName=None
-                color_palette=None
-                ball_radius = 0.198
-                stick_radius=0.05
-                cube=[1,63]
-                view="cube"
-                polymerLengthFile = None
-                ylimits = [20,28]
+                kwargs['skip']=1
+                kwargs['Ncolors'] = None
+                kwargs['color_type'] = "meth"
+                kwargs['colorOption'] = "H3K9me3"
+                kwargs['circles'] = None
+                kwargs['xlimits'] = None
+                kwargs['scalebar'] = None
+                kwargs['methFileName'] = baseName+"input/meth"
+                kwargs['color_cohisn']=False
+                kwargs['bindFileName']=None
+                kwargs['color_palette']=None
+                kwargs['ball_radius'] = 0.198
+                kwargs['stick_radius']=0.05
+                kwargs['cube']=[1,63]
+                kwargs['view']="cube"
+                kwargs['polymerLengthFile'] = None
+                kwargs['ylimits'] = [20,28]
 
             if (image=="Cube_full"): # Cube
-                skip=5
-                Ncolors = None
-                color_type = "meth"
-                colorOption = "H3K9me3"
-                circles = None
-                xlimits = None
-                scalebar = None
-                methFileName = baseName+"input/meth"
-                color_cohisn=False
-                bindFileName=None
-                color_palette=None
-                ball_radius = 0.198
-                stick_radius=0.05
+                kwargs['skip']=5
+                kwargs['Ncolors'] = None
+                kwargs['color_type'] = "meth"
+                kwargs['colorOption'] = "H3K9me3"
+                kwargs['circles'] = None
+                kwargs['xlimits'] = None
+                kwargs['scalebar'] = None
+                kwargs['methFileName'] = baseName+"input/meth"
+                kwargs['color_cohisn']=False
+                kwargs['bindFileName']=None
+                kwargs['color_palette']=None
+                kwargs['ball_radius'] = 0.198
+                kwargs['stick_radius']=0.05
                 #cube=[1,63]
-                cube=[0,64]
-                view="cube"
-                polymerLengthFile = None
-                ylimits = None
+                kwargs['cube']=[0,64]
+                kwargs['view']="cube"
+                kwargs['polymerLengthFile'] = None
+                kwargs['ylimits'] = None
 
             if (image=="Cube_full_CTCFs"): # Cube
-                skip=5
-                Ncolors = None
-                color_type = "meth"
-                colorOption = "H3K9me3"
-                circles = None
-                xlimits = None
-                scalebar = None
-                methFileName = baseName+"input/meth"
-                color_cohisn=True
-                bindFileName=baseName+"input/bindpairs"
-                color_palette=None
-                ball_radius = 0.198
-                stick_radius=0.05
-                cube=[1,63]
-                view="cube"
-                polymerLengthFile = None
-                ylimits = None
+                kwargs['skip']=5
+                kwargs['Ncolors'] = None
+                kwargs['color_type'] = "meth"
+                kwargs['colorOption'] = "H3K9me3"
+                kwargs['circles'] = None
+                kwargs['xlimits'] = None
+                kwargs['scalebar'] = None
+                kwargs['methFileName'] = baseName+"input/meth"
+                kwargs['color_cohisn']=True
+                kwargs['bindFileName']=baseName+"input/bindpairs"
+                kwargs['color_palette']=None
+                kwargs['ball_radius'] = 0.198
+                kwargs['stick_radius']=0.05
+                kwargs['cube']=[1,63]
+                kwargs['view']="cube"
+                kwargs['polymerLengthFile'] = None
+                kwargs['ylimits'] = None
 
             if (image=="PolyColor"): #color polymers
-                polymerLengthFile = baseName+"input/polyLengths"
-                Ncolors = sum(1 for line in open(polymerLengthFile))
-                color_type = "polymer"
-                colorOption="Aseries"
-                circles = [(19.5,[20.5,20.5,20.5])]
-                xlimits=[19.5,25.0]
-                scalebar=500/100
-                methFileName = None
-                bindFileName = None
-                color_cohisn = False
-                color_palette="hls"
-                ball_radius=0.07
-                stick_radius=0.07
-                view="chrom10"
+                kwargs['polymerLengthFile'] = baseName+"input/polyLengths"
+                kwargs['Ncolors'] = sum(1 for line in open(polymerLengthFile))
+                kwargs['color_type'] = "polymer"
+                kwargs['colorOption']="Aseries"
+                kwargs['circles'] = [(19.5,[20.5,20.5,20.5])]
+                kwargs['xlimits']=[19.5,25.0]
+                kwargs['scalebar']=500/100
+                kwargs['methFileName'] = None
+                kwargs['bindFileName'] = None
+                kwargs['color_cohisn'] = False
+                kwargs['color_palette']="hls"
+                kwargs['ball_radius']=0.07
+                kwargs['stick_radius']=0.07
+                kwargs['view']="chrom10"
 
             if (image == "EpiColor"): #
-                Ncolors = 13
-                color_type = "meth10"
-                colorOption="Aseries"
-                circles = [(19.5,[20.5,20.5,20.5])]
-                xlimits=[19.5,25.0]
-                scalebar=500/100
-                methFileName = baseName+"input/ab"
-                bindFileName = baseName+"input/bindpairs"
-                color_cohisn = True
-                color_palette="coolwarm"
-                ball_radius=0.07
-                stick_radius=0.07
-                view="chrom10"
-                polymerLengthFile = None
+                kwargs['Ncolors'] = 13
+                kwargs['color_type'] = "meth10"
+                kwargs['colorOption']="Aseries"
+                kwargs['circles'] = [(19.5,[20.5,20.5,20.5])]
+                kwargs['xlimits']=[19.5,25.0]
+                kwargs['scalebar']=500/100
+                kwargs['methFileName'] = baseName+"input/ab"
+                kwargs['bindFileName'] = baseName+"input/bindpairs"
+                kwargs['color_cohisn'] = True
+                kwargs['color_palette']="coolwarm"
+                kwargs['ball_radius']=0.07
+                kwargs['stick_radius']=0.07
+                kwargs['view']="chrom10"
+                kwargs['polymerLengthFile'] = None
 
             if (image == "tri_color"):
-                skip=1
-                Ncolors = None
-                color_type = "meth"
-                colorOption = "H3K9me3"
-                circles = [(31.0,[32.0,32.0,32.0])]
-                xlimits=[32,36]
-                scalebar=250/28.7
-                methFileName = baseName+"input/meth"
-                color_cohisn=False
-                bindFileName=None
-                color_palette=None
-                ball_radius = 0.198
-                stick_radius=0.05
-                cube=None
-                view="cube"
-                polymerLengthFile = None
+                kwargs['skip']=1
+                kwargs['Ncolors'] = None
+                kwargs['color_type'] = "meth"
+                kwargs['colorOption'] = "H3K9me3"
+                kwargs['circles'] = [(31.0,[32.0,32.0,32.0])]
+                kwargs['xlimits']=[32,36]
+                kwargs['scalebar']=250/28.7
+                kwargs['methFileName'] = baseName+"input/meth"
+                kwargs['color_cohisn']=False
+                kwargs['bindFileName']=None
+                kwargs['color_palette']=None
+                kwargs['ball_radius'] = 0.198
+                kwargs['stick_radius']=0.05
+                kwargs['cube']=None
+                kwargs['view']="cube"
+                kwargs['polymerLengthFile'] = None
 
-            r2pdb(xyzFileName, xlimits=xlimits, color_type=color_type,
-                  polymerLengthFile=polymerLengthFile, circles=circles,
-                  Ncolors=Ncolors, methFileName=methFileName,
-                  scalebar=scalebar, bindFileName=bindFileName,
-                  color_cohisn=color_cohisn, skip=skip, cube=cube,
-                  ylimits=ylimits, zlimits=zlimits)
+            r2pdb(xyzFileName, **kwargs)
 
 
+            recolor = False
             if recolor:
-                OutName = baseName+"data/"+image+str(savept)+suffix+".png"
+                kwargs['OutName'] = baseName+"data/"+image+str(savept)+suffix+".png"
             else:
-                OutName = baseName+"data/"+image+str(savept)+suffix+".png"
-            makepmlFile(OutName=OutName, colorOption=colorOption,
-                        Ncolors=Ncolors, closePymol=True,
-                        color_palette=color_palette, ball_radius=ball_radius,
-                        stick_radius = stick_radius, view=view)
+                kwargs['OutName'] = baseName+"data/"+image+str(savept)+suffix+".png"
+            makepmlFile(**kwargs)
 
             os.system("pymol autoGen.pml")
-        
+

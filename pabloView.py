@@ -1,14 +1,14 @@
 from polymerMole.r2pdb import r2pdb
 from polymerMole.makepmlFile import makepmlFile
 import os
-baseNames = {'../../../../pablo98/pablos_first_sim/':110}
+baseNames = {'../../../../pablo98/pablos_first_sim/':124}
 
 for baseName in baseNames.keys():
     savept_max = baseNames[baseName]
     for savept in [savept_max]: #[2,3,4,7,8,9,12]: #[savept_max]: #[0,5,9]: #range(0,111,20): 
         recolor = False
         
-        for rep in range(1,32,3): #range(1,8): #range(2,10): #[2,4,6,7,8,9,10,11,12,14]:
+        for rep in range(1,31,3): #range(1,8): #range(2,10): #[2,4,6,7,8,9,10,11,12,14]:
             if True:
                 suffix = "v"+str(rep)
             else:

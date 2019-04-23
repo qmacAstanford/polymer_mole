@@ -7,7 +7,8 @@ def r2pdb(xyzFileName, nboundary=1000, skip=1, methFileName=None,
           bindFileName=None, Ncolors=default_Ncolors, xlimits=None,
           color_type="meth", color_cohisn=False, outFileName="temp.pdb",
           polymerLengthFile=None, circles = [(31.0,[32.0,32.0,32.0])],
-          scalebar=None, cube=None, ylimits=None, zlimits=None, period=None):
+          scalebar=None, cube=None, ylimits=None, zlimits=None, period=None,
+          **kwargs):
     
     """Convert xyzFileName into a pdb file ready for pymol.
 
@@ -115,7 +116,7 @@ def r2pdb(xyzFileName, nboundary=1000, skip=1, methFileName=None,
             Y.append(y)
             Z.append(z)
             #AB.append(int(temp[3]))
-            if (methFileName != None):
+            if not methFileName is None:
                 if(methFileName == xyzFileName):
                     METH.append(int(temp[3]))
                 else:
@@ -128,6 +129,15 @@ def r2pdb(xyzFileName, nboundary=1000, skip=1, methFileName=None,
                         raise
     nbeads=len(X)
 
+    # -------------------------
+    #   Check for polymer ends
+    # -------------------------
+    if not polymerLengthFile is None:
+        polyLengths = np.loadtxt(polymerLengthFile)
+        starts = [sum(polyLengths[:ii]) for ii in range(len(polyLengths))]
+        import bisect
+        def same_polymer(i1, i2):
+            return bisect.bisect(starts,i1) == bisect.bisect(starts,i2)
     
     # -------------------------
     #  Set atom types
@@ -174,11 +184,15 @@ def r2pdb(xyzFileName, nboundary=1000, skip=1, methFileName=None,
                 %(n+1,atomName,resname,x,y,z),file=file_obj)
         Ntot=Ntot+1;
         if n != 0:
-            if (index[n]==index[n-1]+skip):
-                if not period is None:
-                    if period_list[n] != period_list[n-1]:
-                        continue # beads in different periods
-                print('CONECT%5d%5d'%(n, n+1),file=file_obj)
+            if not (index[n]==index[n-1]+skip):
+                continue
+            if period is not None:
+                if period_list[n] != period_list[n-1]:
+                    continue # beads in different periods
+            if polymerLengthFile is not None:
+                if not same_polymer(index[n], index[n-1]):
+                    continue # don't connect seperate polymers
+            print('CONECT%5d%5d'%(n, n+1),file=file_obj)
 
 
     # -----------------

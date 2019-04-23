@@ -3,7 +3,8 @@ import seaborn as sns
 from polymerMole.glob import *
 def makepmlFile(OutName="out.png", colorOption="H3K9me3",
                 Ncolors=default_Ncolors, closePymol=True, ball_radius=0.085,
-                color_palette='hls', stick_radius=0.05, view = "cube"):
+                color_palette='hls', stick_radius=0.05, view = "cube",
+                highlightPolymers = None, **kwargs):
     """ Make a pml comand file for pymol and run pymol to generate a png.
 
     Args:
@@ -87,7 +88,10 @@ def makepmlFile(OutName="out.png", colorOption="H3K9me3",
             myfile.write("set_bond stick_radius, " + str(stick_radius) + ", "+name+"\n")
             myfile.write("set_bond stick_radius, " + str(stick_radius) + ", "+name+", (name C1)\n")
             #myfile.write("set sphere_transparency=0.9, "+name+"\n")
-            #myfile.write("set_bond stick_transparency, 0.90, "+name+"\n")
+            if highlightPolymers is not None:
+                if n not in highlightPolymers:
+                    myfile.write("set sphere_transparency=0.8, "+name+"\n")
+                    myfile.write("set_bond stick_transparency, 0.80, "+name+"\n")
             myfile.write("\n\n")
 
         #for nn in range(Ncolors-1):
@@ -169,7 +173,19 @@ def makepmlFile(OutName="out.png", colorOption="H3K9me3",
             26.081180573,    8.462759018,   11.506986618,\
           -149.017959595,  287.981750488,  -20.000000000 )
         """))
-        
+
+    if (view == "chrom22"):
+        #cube
+        myfile.write(textwrap.dedent("""
+        set_view (\
+             0.000000000,    0.000000000,   -1.000000000,\
+             1.000000000,    0.000000000,   -0.000000000,\
+             0.000000000,   -1.000000000,   -0.000000000,\
+            -0.000000700,    0.000000581, -117.193984985,\
+            28.395023346,   17.435894012,   17.169824600,\
+           -90.806114197,  346.193969727,  -20.000000000 )
+        """))
+
 
 
     if (closePymol):
