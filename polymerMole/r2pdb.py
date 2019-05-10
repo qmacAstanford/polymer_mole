@@ -8,8 +8,9 @@ def r2pdb(xyzFileName, nboundary=1000, skip=1, methFileName=None,
           color_type="meth", color_cohisn=False, outFileName="temp.pdb",
           polymerLengthFile=None, circles = [(31.0,[32.0,32.0,32.0])],
           scalebar=None, cube=None, ylimits=None, zlimits=None, period=None,
+          fractionType1 = None, maxpoints = None,
           **kwargs):
-    
+
     """Convert xyzFileName into a pdb file ready for pymol.
 
     xyzFileName (str): Name of file with x y z coordinates.
@@ -26,7 +27,9 @@ def r2pdb(xyzFileName, nboundary=1000, skip=1, methFileName=None,
     outFileName (str): Name of oubput pdb file
     polymerLengthFile (str): Name of file with lengths of polymers
     circles (lst): List of circles specified each specified by (R,[x,y,z])
-    scalebar (real): Length of scalebar in simulation units.
+    scalebar (float): Length of scalebar in simulation units.
+    fractionType1 (float): Fraction of polymers to color as type A1
+    maxpoints (int): maximum number of points to include
     """
 
     # ---------------------
@@ -69,9 +72,9 @@ def r2pdb(xyzFileName, nboundary=1000, skip=1, methFileName=None,
     with open(xyzFileName) as f:
         for line in f:
             count=count+1
+            if maxpoints is not None and count > maxpoints:
+                break
             if count%skip != 0:
-                if count > 390387:
-                    break
                 if color_cohisn:
                     # make sure to include all cohsin
                     if leftends[count-1] == 0:
@@ -100,15 +103,19 @@ def r2pdb(xyzFileName, nboundary=1000, skip=1, methFileName=None,
                     continue
                 if z > zlimits[1]:
                     continue
-            
-            if not period is None:
-                period_list.append((int(x//period[0]),
-                                    int(y//period[1]),
-                                    int(z//period[2]))) 
-                x = x%period[0]
-                y = y%period[1]
-                z = z%period[2]
 
+            # Apply periodic boundary conditions
+            if not period is None:
+                period_temp = [0, 0, 0]
+                r_temp = [x, y, z]
+                for ii in range(3):
+                    if period[ii] is not None:
+                        period_temp[ii] = r_temp[ii]//period[ii]
+                        r_temp[ii] = r_temp[ii]%period[ii]
+                period_list.append(tuple(period_temp))
+                x = r_temp[0]
+                y = r_temp[1]
+                z = r_temp[2]
 
 
             index.append(count)
@@ -132,13 +139,16 @@ def r2pdb(xyzFileName, nboundary=1000, skip=1, methFileName=None,
     # -------------------------
     #   Check for polymer ends
     # -------------------------
-    if not polymerLengthFile is None:
+    if type(polymerLengthFile) == type(1):
+        def same_polymer(i1, i2, origin=1):
+            return (i1-origin) // polymerLengthFile == (i2-origin) // polymerLengthFile
+    elif not polymerLengthFile is None:
         polyLengths = np.loadtxt(polymerLengthFile)
         starts = [sum(polyLengths[:ii]) for ii in range(len(polyLengths))]
         import bisect
-        def same_polymer(i1, i2):
-            return bisect.bisect(starts,i1) == bisect.bisect(starts,i2)
-    
+        def same_polymer(i1, i2, origin=1):
+            return bisect.bisect(starts,i1-origin) == bisect.bisect(starts,i2-origin)
+
     # -------------------------
     #  Set atom types
     # -------------------------
@@ -150,6 +160,11 @@ def r2pdb(xyzFileName, nboundary=1000, skip=1, methFileName=None,
         atomType = SetAtomTypeByPolymer(polymerLengthFile,index)
     elif color_type == "meth10":
         atomType = SetAtomTypeVariableMethyaltionLevel(METH)
+    elif color_type == "firstFraction":
+        n1 = int(nbeads*fractionType1)
+        while same_polymer(n1, n1-1, origin=0) and n1 > 0:
+            n1 = n1-1
+        atomType = SetAtomTypeTwoGroups(nbeads, n1)
     else:
         raise ValueError("Not an recognized color_type")
 

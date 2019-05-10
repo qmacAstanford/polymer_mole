@@ -71,15 +71,34 @@ for cup in ['0p0001','0p1','0p2','0p4','0p8','1p6']:
         baseNames['../../multiInitCond1/Initial1_cupn'+cup+'_chin'+chi+'/']=75
 baseNames = {'../../multiInitCond1/Initial1_cupn0p4_chin480/':75}
 baseNames = {'../../with_CTCFs_no_initial_field2/':59}
+baseNames = {}
+for mu in ['1p0','1p3']:
+    for rang in ['0p1','0p5','1p0']:
+        for strength in ['0p03','0p1','0p3']:
+            direct = '../../multi_attach_strength/w_CTCFs_nif_ensemble_GM12878_mun'+mu+'_range'+rang+'_strength'+strength+'/'
+            if not os.path.isdir(direct):
+                continue
+            baseNames[direct] = \
+                    len(open(direct+'data/energiesv0').readlines())-2
+baseNames = {}
+for mu in ['1p0','1p3']:
+    for bpl in ['150','600','2400']:
+        for pros in ['150','600','2400']:
+            direct = '../../multi_LEF_params/CTCFs_GM12878_mun'+mu+'_bpl'+bpl+'_pros'+pros+'/'
+            if not os.path.isdir(direct):
+                continue
+            baseNames[direct] = \
+                    len(open(direct+'data/energiesv0').readlines())-2
+baseNames = {'../../align3/':49}
 
 
 kwargs ={}
-
+import os
 for baseName in baseNames.keys():
     savept_max = baseNames[baseName]
-    for savept in [0,1,10,59]: #[savept_max]: #[2,3,4,7,8,9,12]: #[savept_max]: #[0,5,9]: #range(0,111,20):
+    for savept in [savept_max]: #[2,3,4,7,8,9,12]: #[savept_max]: #[0,5,9]: #range(0,111,20):
 
-        for rep in [10, 11]: #range(1,8): #range(2,10): #[2,4,6,7,8,9,10,11,12,14]:
+        for rep in [14]: #range(1,8): #range(2,10): #[2,4,6,7,8,9,10,11,12,14]:
             if True:
                 suffix = "v"+str(rep)
             else:
@@ -90,11 +109,36 @@ for baseName in baseNames.keys():
                 continue
             kwargs['skip'] = 3
 
-            kwargs['closePymol']=True
+            kwargs['closePymol']=False
             image = "Cube_full_CTCFs"
             image = "chrom22"
             image = "EpiColor22"
             image = "Cube_full"
+            image = "Luke"
+
+            if (image=="Luke"): # Cube
+                kwargs['skip']=1
+                kwargs['Ncolors'] = None
+                kwargs['color_type'] = "firstFraction"
+                kwargs['colorOption'] = "highlight_homopoly"
+                kwargs['maxpoints'] = 5*1000
+                kwargs['fractionType1'] = 0.1
+                kwargs['circles'] = None
+                kwargs['xlimits'] = None
+                kwargs['ylimits'] = None
+                kwargs['zlimits'] = None
+                kwargs['scalebar'] = None
+                kwargs['methFileName'] = None
+                kwargs['color_cohisn']=False
+                kwargs['bindFileName']=None
+                kwargs['color_palette']=None
+                enlarge = 5
+                kwargs['ball_radius'] = 0.048*enlarge
+                kwargs['stick_radius']=0.048*enlarge
+                kwargs['cube']=[0,80]
+                kwargs['view']="Luke"
+                kwargs['polymerLengthFile'] = 5
+                kwargs['period'] = (80.0, 80.0, None)
 
             if (image=="CTCFs_in_sphere"):
                 kwargs['skip']=5

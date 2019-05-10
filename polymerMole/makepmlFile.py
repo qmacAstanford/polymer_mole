@@ -24,7 +24,38 @@ def makepmlFile(OutName="out.png", colorOption="H3K9me3",
     hide all
     bg_color white
     """))
-    if (colorOption=="H3K9me3"):
+    if (colorOption == "highlight_homopoly"):
+        myfile.write(textwrap.dedent("""
+        set_color color1, [1.0, 0.0, 0.0]
+        set_color color2, [0.0, 0.0, 1.0]
+
+        show spheres, (name A1)
+        color color1, (name A1)
+        alter (name A1),vdw=""" +str(ball_radius) + """
+        show sticks, (name A1)
+        set_bond stick_radius,""" +str(stick_radius) + """, (name A1)
+        hide lines, (name A1)
+
+        show spheres, (name A2)
+        color color2, (name A2)
+        alter (name A2), vdw=""" +str(ball_radius) + """
+        show sticks, (name A2)
+        set_bond stick_radius, """ +str(stick_radius) + """, (name A2)
+        hide lines, (name A2)
+
+        set_bond stick_radius,""" +str(stick_radius) + """ , (name A2), (name A1)
+
+        show spheres, (name C1)
+        color black,(name C1)
+        alter (name C1),vdw=0.15
+        show sticks, (name C1)
+        set_bond stick_radius, 0.05, (name C1)
+        hide lines, (name C1)
+
+        set sphere_transparency=0.0, (name A2)
+        set_bond stick_transparency, 0.00, (name A2)
+        """))
+    elif (colorOption=="H3K9me3"):
         myfile.write(textwrap.dedent("""
         set_color low_H3K9me3, [0.5, 1.0, 0.917]
         set_color med_H3K9me3, [0.808, 0.596, 0.145]
@@ -184,6 +215,18 @@ def makepmlFile(OutName="out.png", colorOption="H3K9me3",
             -0.000000700,    0.000000581, -117.193984985,\
             28.395023346,   17.435894012,   17.169824600,\
            -90.806114197,  346.193969727,  -20.000000000 )
+        """))
+
+    if (view == "Luke"):
+        #cube
+        myfile.write(textwrap.dedent("""
+        set_view (\
+             0.005956888,   -0.997197211,   -0.074564442,\
+            -0.997922063,   -0.010712218,    0.063549034,\
+            -0.064170003,    0.074030638,   -0.995188534,\
+            -0.000077945,    0.000045210, -311.804016113,\
+            41.645568848,   36.525054932,   29.839927673,\
+           103.808670044,  540.808715820,  -20.000000000 )
         """))
 
 

@@ -23,6 +23,15 @@ def nameSeries(x,letter='A'):
     else:
         raise ValueError('Too many colors')
 
+def SetAtomTypeTwoGroups(nbeads, n1):
+    atomType = []
+    for n in range(nbeads):
+        if n<n1:
+            atomType.append('  A1')
+        else:
+            atomType.append('  A2')
+    return atomType
+
 def SetAtomTypeSequentially(nbeads,Ncolors):
     atomType=[]
     for n in range(0,nbeads):
