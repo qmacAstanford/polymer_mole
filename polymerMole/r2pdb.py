@@ -225,14 +225,16 @@ def r2pdb(xyzFileName, nboundary=1000, skip=1, methFileName=None,
     # ----------------
     if (scalebar != None):
         x=0.0
-        y=5.0
+        #y=5.0
+        y=55.0
         z=5.0
         atomName='BLCK'
         Ntot=Ntot+1;
         print ('HETATM%5d %s %s          %8.3f%8.3f%8.3f  1.00  1.00           C'
               %(Ntot,atomName,resname,x,y,z),file=file_obj)
         #y=1000/28.7
-        y=scalebar+y
+        #y=scalebar+y
+        x = scalebar+x
         Ntot=Ntot+1;
         print ('HETATM%5d %s %s          %8.3f%8.3f%8.3f  1.00  1.00           C'
               %(Ntot,atomName,resname,x,y,z),file=file_obj)

@@ -100,13 +100,24 @@ def drawConfinement(R, center, file_obj, Ntot, nboundary, nbeads):
 def drawCube(low, high, file_obj, Ntot):
     atomName='BLCK'
     corners = []
-    for xx in [low,high]:
-        for yy in [low,high]:
-            for zz in [low,high]:
-                Ntot=Ntot+1
-                print ('HETATM%5d %s %s          %8.3f%8.3f%8.3f  1.00  1.00           C'
-                      %(Ntot,atomName,resname,xx,yy,zz),file=file_obj)
-                corners.append([xx,yy,zz,Ntot])
+    if hasattr(low, "__iter__"):
+        if not hasattr(high, "__iter__"):
+            raise ValueError("low and high must be same length")
+        for xx in [low[0],high[0]]:
+            for yy in [low[1],high[1]]:
+                for zz in [low[2],high[2]]:
+                    Ntot=Ntot+1
+                    print ('HETATM%5d %s %s          %8.3f%8.3f%8.3f  1.00  1.00           C'
+                          %(Ntot,atomName,resname,xx,yy,zz),file=file_obj)
+                    corners.append([xx,yy,zz,Ntot])
+    else:
+        for xx in [low,high]:
+            for yy in [low,high]:
+                for zz in [low,high]:
+                    Ntot=Ntot+1
+                    print ('HETATM%5d %s %s          %8.3f%8.3f%8.3f  1.00  1.00           C'
+                          %(Ntot,atomName,resname,xx,yy,zz),file=file_obj)
+                    corners.append([xx,yy,zz,Ntot])
 
     for aa in range(8):
         for bb in range(8):

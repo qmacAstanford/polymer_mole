@@ -89,8 +89,11 @@ for mu in ['1p0','1p3']:
                 continue
             baseNames[direct] = \
                     len(open(direct+'data/energiesv0').readlines())-2
-baseNames = {'../../align3/':49}
-
+baseNames = {'../../align3/':14}
+baseNames = {'../../alignStrong/':13}
+baseNames =\
+{'../../multi_attach_strength/w_CTCFs_nif_ensemble_GM12878_mun1p0_range1p0_strength0p3/':110}
+baseNames = {'../../align4/':49}
 
 kwargs ={}
 import os
@@ -98,7 +101,7 @@ for baseName in baseNames.keys():
     savept_max = baseNames[baseName]
     for savept in [savept_max]: #[2,3,4,7,8,9,12]: #[savept_max]: #[0,5,9]: #range(0,111,20):
 
-        for rep in [14]: #range(1,8): #range(2,10): #[2,4,6,7,8,9,10,11,12,14]:
+        for rep in range(1,16): #range(1,8): #range(2,10): #[2,4,6,7,8,9,10,11,12,14]:
             if True:
                 suffix = "v"+str(rep)
             else:
@@ -107,13 +110,14 @@ for baseName in baseNames.keys():
             xyzFileName=baseName+"data/r"+str(savept)+suffix
             if baseName in ["../../multiTenkb_woCTCF/Tenkb_woCTCF_2_cupn0p0001_chin240/"]:
                 continue
-            kwargs['skip'] = 3
+            kwargs['skip'] = 1
 
-            kwargs['closePymol']=False
+            kwargs['closePymol']=True
             image = "Cube_full_CTCFs"
             image = "chrom22"
             image = "EpiColor22"
             image = "Cube_full"
+            image = "Cube"
             image = "Luke"
 
             if (image=="Luke"): # Cube
@@ -121,8 +125,8 @@ for baseName in baseNames.keys():
                 kwargs['Ncolors'] = None
                 kwargs['color_type'] = "firstFraction"
                 kwargs['colorOption'] = "highlight_homopoly"
-                kwargs['maxpoints'] = 5*1000
-                kwargs['fractionType1'] = 0.1
+                kwargs['maxpoints'] = 5*3000
+                kwargs['fractionType1'] = 0.0
                 kwargs['circles'] = None
                 kwargs['xlimits'] = None
                 kwargs['ylimits'] = None
@@ -132,10 +136,10 @@ for baseName in baseNames.keys():
                 kwargs['color_cohisn']=False
                 kwargs['bindFileName']=None
                 kwargs['color_palette']=None
-                enlarge = 5
+                enlarge = 2
                 kwargs['ball_radius'] = 0.048*enlarge
                 kwargs['stick_radius']=0.048*enlarge
-                kwargs['cube']=[0,80]
+                kwargs['cube']=[[0,0,0],[80,80,3]]
                 kwargs['view']="Luke"
                 kwargs['polymerLengthFile'] = 5
                 kwargs['period'] = (80.0, 80.0, None)
@@ -222,17 +226,17 @@ for baseName in baseNames.keys():
                 kwargs['colorOption'] = "H3K9me3"
                 kwargs['circles'] = None
                 kwargs['xlimits'] = None
-                kwargs['scalebar'] = None
+                kwargs['scalebar']=100/28.7
                 kwargs['methFileName'] = baseName+"input/meth"
                 kwargs['color_cohisn']=False
                 kwargs['bindFileName']=None
                 kwargs['color_palette']=None
                 kwargs['ball_radius'] = 0.198
                 kwargs['stick_radius']=0.05
-                kwargs['cube']=[1,63]
+                kwargs['cube']=[0,64]
                 kwargs['view']="cube"
                 kwargs['polymerLengthFile'] = None
-                kwargs['ylimits'] = [20,28]
+                kwargs['ylimits'] = [26,38]
 
             if (image=="Cube_full"): # Cube
                 kwargs['skip']=5
@@ -275,7 +279,8 @@ for baseName in baseNames.keys():
 
             if (image=="PolyColor"): #color polymers
                 kwargs['polymerLengthFile'] = baseName+"input/polyLengths"
-                kwargs['Ncolors'] = sum(1 for line in open(polymerLengthFile))
+                kwargs['Ncolors'] = sum(1 for line in
+                                        open(kwargs['polymerLengthFile']))
                 kwargs['color_type'] = "polymer"
                 kwargs['colorOption']="Aseries"
                 kwargs['circles'] = [(19.5,[20.5,20.5,20.5])]
