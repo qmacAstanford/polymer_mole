@@ -10,7 +10,7 @@ def r2pdb(xyzFileName, nboundary=1000, skip=1, methFileName=None,
           scalebar=None, cube=None, ylimits=None, zlimits=None, period=None,
           fractionType1 = None, maxpoints = None, highlight_file=None,
           mirror=None, filter_meth = None, recenter=False,
-          **kwargs):
+          ring=False,**kwargs):
 
     """Convert xyzFileName into a pdb file ready for pymol.
 
@@ -34,6 +34,7 @@ def r2pdb(xyzFileName, nboundary=1000, skip=1, methFileName=None,
     mirror (list): [x reflection plane, y reflection plane, z reflection plane]
     filter_meth (string): filter to apply, e.g. "PNAS_window"
     recenter (bool): set start of chain to 0
+    ring (bool): is polymer a ring
     """
 
     # ---------------------
@@ -239,8 +240,15 @@ def r2pdb(xyzFileName, nboundary=1000, skip=1, methFileName=None,
                     continue # beads in different periods
             if polymerLengthFile is not None:
                 if not same_polymer(index[n], index[n-1]):
+                    if ring:
+                        if type(polymerLengthFile) != type(1):
+                            ValueError("ring only set up for constant polymer length")
+                        print('CONECT%5d%5d'%(n, n-polymerLengthFile+1),file=file_obj)
                     continue # don't connect seperate polymers
             print('CONECT%5d%5d'%(n, n+1),file=file_obj)
+
+    if ring and polymerLengthFile is None:
+        print('CONECT%5d%5d'%(n+1, 1),file=file_obj)
 
 
     # -----------------

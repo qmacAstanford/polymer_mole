@@ -162,17 +162,18 @@ def stringify(my_float):
 #baseNames = {'../../../../rk22/wlcsim/':1000}
 #baseNames = \
 #{'../../multi_start_order/w_CTCF_GM12878__strength0p3_chiOn15_extOn11copy1/':110}
-baseNames = {}
-origional = "../../no_LEFs/wo_CTCFs_nif_ensemble_GM12878"
-for mu in [-1.0, -1.3, -1.5, -0.8]:
-    for copy in [1, 2]:
-        direct = origional + "_mu" + stringify(mu) \
-                  + "_copy" + stringify(copy) + "/"
-        if not os.path.isdir(direct):
-            continue
-        baseNames[direct] = \
-                len(open(direct+'data/energies').readlines())-2
-baseNames = {"../../../../rk22/verylongTwist070919/":0}
+#baseNames = {}
+#origional = "../../no_LEFs/wo_CTCFs_nif_ensemble_GM12878"
+#for mu in [-1.0, -1.3, -1.5, -0.8]:
+#    for copy in [1, 2]:
+#        direct = origional + "_mu" + stringify(mu) \
+#                  + "_copy" + stringify(copy) + "/"
+#        if not os.path.isdir(direct):
+#            continue
+#        baseNames[direct] = \
+#                len(open(direct+'data/energies').readlines())-2
+#baseNames = {"../../../../rk22/verylongTwist070919/":0}
+baseNames = {'../../../../rk22/run1Twist0/':1000}
 kwargs ={}
 import os
 for baseName in baseNames.keys():
@@ -221,6 +222,7 @@ for baseName in baseNames.keys():
                 kwargs['view']="Luke"
                 kwargs['polymerLengthFile'] = None
                 kwargs['recenter'] = True
+                kwargs['ring'] = True
 
             if (image == "bind2boundary"):
                 kwargs['skip']=1
