@@ -50,6 +50,8 @@ def SetAtomTypesByMethylation(METH):
             atomType.append('  A3')
         elif METH[n]==0:
             atomType.append('  A1')
+        elif METH[n] == 8:
+            atomType.append(' HL8')
         else:
             raise ValueError('Meth type not recognized, '+str(METH[n]))
     return atomType
@@ -152,3 +154,29 @@ def colorFace(low, high, file_obj, Ntot, atomName='BLCK'):
     #            continue
     #        print('CONECT%5d%5d'%(corners[aa][3],corners[bb][3]),file=file_obj)
     return Ntot
+
+from numba import jit
+
+@jit(nopython =True)
+def fastSquareFilter(invec, halfWidth=0):
+    """Applies square filter.
+
+    Args:
+        invec (ndarray): Input vector.
+        width (int): With of square_filter
+    """
+    NT=invec.shape[0]
+    out = np.zeros(NT)
+
+    total = invec[0]
+    lower = 0
+    upper = 0
+    for center in range(0,NT):
+        while upper < min(center+halfWidth, NT-1):
+            upper = upper + 1
+            total = total + invec[upper]
+        while lower < max(0,center-halfWidth):
+            total = total - invec[lower]
+            lower = lower + 1
+        out[center] = total/float(upper-lower+1)
+    return out

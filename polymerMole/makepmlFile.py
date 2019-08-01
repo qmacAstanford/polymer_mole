@@ -4,7 +4,7 @@ from polymerMole.glob import *
 def makepmlFile(OutName="out.png", colorOption="H3K9me3",
                 Ncolors=default_Ncolors, closePymol=True, ball_radius=0.085,
                 color_palette='hls', stick_radius=0.05, view = "cube",
-                highlightPolymers = None, **kwargs):
+                highlightPolymers = None, boundary_thickness=0.15, **kwargs):
     """ Make a pml comand file for pymol and run pymol to generate a png.
 
     Args:
@@ -13,6 +13,7 @@ def makepmlFile(OutName="out.png", colorOption="H3K9me3",
         Ncolors (int): Nuber of colors
         ball_radius (float): radious of balls
         color_palette (str): seaborn color option.  e.t. "hls" or "coolwarm"
+        boundary_thickness (float): boudnary wire radious
     """
     myfile = open("autoGen.pml","w")
     # General Head lines
@@ -90,6 +91,12 @@ def makepmlFile(OutName="out.png", colorOption="H3K9me3",
         set_bond stick_radius, 0.05, (name A2), (name A3)
         set_bond stick_radius, 0.05, (name A3), (name A1)
 
+
+        show spheres, (name HL8)
+        color black, (name HL8)
+        alter (name HL8),vdw=0.5
+        hide lines, (name HL8)
+
         show spheres, (name C1)
         color black,(name C1)
         alter (name C1),vdw=0.15
@@ -157,7 +164,7 @@ def makepmlFile(OutName="out.png", colorOption="H3K9me3",
     alter (name BLCK),vdw=0.02
     color black, (name BLCK)
     show sticks, (name BLCK)
-    set_bond stick_radius, 0.1, (name BLCK)
+    set_bond stick_radius, """+str(boundary_thickness)+""", (name BLCK)
 
     """))
     if (view == "single_chromosome_sphere"):
@@ -228,7 +235,19 @@ def makepmlFile(OutName="out.png", colorOption="H3K9me3",
             41.645568848,   36.525054932,   29.839927673,\
            103.808670044,  540.808715820,  -20.000000000 )
         """))
+    if (view =="zoom_boundary"):
+        myfile.write(textwrap.dedent("""
+        set_view (\
+             0.979412198,   -0.005551211,    0.201794311,\
+            -0.201868802,   -0.031240445,    0.978914082,\
+             0.000870125,   -0.999496341,   -0.031717874,\
+             0.000003330,    0.000002887,  -74.053474426,\
+             9.356276512,   25.627843857,   23.458267212,\
+          -133.947280884,  303.052459717,  -20.000000000 )
+        """))
 
+
+    myfile.write("ray\n")
 
 
     if (closePymol):

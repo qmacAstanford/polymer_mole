@@ -8,7 +8,8 @@ def r2pdb(xyzFileName, nboundary=1000, skip=1, methFileName=None,
           color_type="meth", color_cohisn=False, outFileName="temp.pdb",
           polymerLengthFile=None, circles = [(31.0,[32.0,32.0,32.0])],
           scalebar=None, cube=None, ylimits=None, zlimits=None, period=None,
-          fractionType1 = None, maxpoints = None,
+          fractionType1 = None, maxpoints = None, highlight_file=None,
+          mirror=None, filter_meth = None, recenter=False,
           **kwargs):
 
     """Convert xyzFileName into a pdb file ready for pymol.
@@ -26,27 +27,49 @@ def r2pdb(xyzFileName, nboundary=1000, skip=1, methFileName=None,
     color_cohisn (logical): Whether to color cohisin beads
     outFileName (str): Name of oubput pdb file
     polymerLengthFile (str): Name of file with lengths of polymers
-    circles (lst): List of circles specified each specified by (R,[x,y,z])
+    circles (list): List of circles specified each specified by (R,[x,y,z])
     scalebar (float): Length of scalebar in simulation units.
     fractionType1 (float): Fraction of polymers to color as type A1
     maxpoints (int): maximum number of points to include
+    mirror (list): [x reflection plane, y reflection plane, z reflection plane]
+    filter_meth (string): filter to apply, e.g. "PNAS_window"
+    recenter (bool): set start of chain to 0
     """
 
     # ---------------------
     #    Read Meth file
     # --------------------
-    if (methFileName != None and methFileName != xyzFileName):
+    if (methFileName is not None):
+        if methFileName == xyzFileName:
+            column = 3
+        else:
+            column = 0
         AllMeth=[]
         with open(methFileName) as f:
             for line in f:
                 temp=line.split()
-                methValue=int(temp[0])
+                methValue=int(temp[column])
                 AllMeth.append(methValue)
+
+    if (filter_meth is not None):
+        AllMeth = np.array(AllMeth)
+        if filter_meth == "PNAS_window":
+            AllMeth = fastSquareFilter(AllMeth, 50)
+            temp = np.zeros(len(AllMeth)).astype(int)
+            temp[AllMeth>0.53*2] = 1
+            temp[AllMeth>0.705*2] = 2
+            AllMeth = temp
+
+    #-----------------------
+    #   Highlight File
+    #------------------------
+    if (highlight_file is not None):
+        highlight_points = set( np.loadtxt(highlight_file) )
 
     # ---------------------
     #   Read bindpairs
     # ---------------------
-    if (bindFileName):
+    if (bindFileName is not None):
         bindpairs = np.loadtxt(bindFileName).astype(int)
         leftends = np.zeros(len(bindpairs))
         for ii in range(len(bindpairs)):
@@ -87,7 +110,6 @@ def r2pdb(xyzFileName, nboundary=1000, skip=1, methFileName=None,
             z=float(temp[2])
             #[x,y,z] = rotateZ(np.array([x,y,z]),-np.pi/4)
             #[x,y,z] = rotateX(np.array([x,y,z]),-np.pi/3)
-
             if (xlimits != None):
                 if  x < xlimits[0]:
                     continue
@@ -103,6 +125,17 @@ def r2pdb(xyzFileName, nboundary=1000, skip=1, methFileName=None,
                     continue
                 if z > zlimits[1]:
                     continue
+            if mirror is not None:
+                for ii, my_mirror in enumerate(mirror):
+                    if my_mirror is None:
+                        continue
+                    if ii==0:
+                        x = my_mirror-(x-my_mirror)
+                    elif ii==1:
+                        y = my_mirror-(y-my_mirror)
+                    elif ii==2:
+                        z = my_mirror-(z-my_mirror)
+
 
             # Apply periodic boundary conditions
             if not period is None:
@@ -124,17 +157,17 @@ def r2pdb(xyzFileName, nboundary=1000, skip=1, methFileName=None,
             Z.append(z)
             #AB.append(int(temp[3]))
             if not methFileName is None:
-                if(methFileName == xyzFileName):
-                    METH.append(int(temp[3]))
+                if (highlight_file is not None and
+                    count in highlight_points):
+                    METH.append(8) # 8 for 8-ball
                 else:
-                    try:
-                        METH.append(AllMeth[count-1])
-                    except:
-                        print("count -1")
-                        print(count-1)
-                        print(xyzFileName)
-                        raise
+                    METH.append(AllMeth[count-1])
     nbeads=len(X)
+
+    if recenter:
+        X = np.array(X)-X[0]
+        Y = np.array(Y)-Y[0]
+        Z = np.array(Z)-Z[0]
 
     # -------------------------
     #   Check for polymer ends
@@ -218,7 +251,11 @@ def r2pdb(xyzFileName, nboundary=1000, skip=1, methFileName=None,
             Ntot = drawConfinement(info[0],info[1], file_obj, Ntot, nboundary, nbeads)
 
     if cube != None:
-        Ntot = drawCube(cube[0], cube[1], file_obj, Ntot)
+        if type(cube) == dict:
+            for key, a_cube in cube.items():
+                Ntot = drawCube(a_cube[0], a_cube[1], file_obj, Ntot)
+        else:
+            Ntot = drawCube(cube[0], cube[1], file_obj, Ntot)
 
     # ----------------
     #   Draw scalebar
