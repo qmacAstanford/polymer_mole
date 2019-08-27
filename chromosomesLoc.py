@@ -173,7 +173,7 @@ def stringify(my_float):
 #        baseNames[direct] = \
 #                len(open(direct+'data/energies').readlines())-2
 #baseNames = {"../../../../rk22/verylongTwist070919/":0}
-baseNames = {'../../../../sdebesai/wlcsim/':10}
+baseNames = {'../../../../sdebesai/wlcsim/':18}
 kwargs ={}
 import os
 for baseName in baseNames.keys():
@@ -218,14 +218,15 @@ for baseName in baseNames.keys():
                 kwargs['color_cohisn']=False
                 kwargs['bindFileName']=None
                 kwargs['color_palette']='hls'
-                kwargs['ball_radius'] = 2.0
-                kwargs['stick_radius']=1.0
+                kwargs['ball_radius'] = 0.45
+                kwargs['stick_radius']=0.45
                 kwargs['view']="Luke"
                 kwargs['cube']=[[0,0,0],[50,50,50]]
                 kwargs['polymerLengthFile'] = 30
                 kwargs['recenter'] = False
                 kwargs['ring'] = True
                 kwargs['period'] = [50,50,50]
+                kwargs['interPolyBonds'] = baseName+"data/bonds"+str(savept)+".txt"
 
             if (image=="single_polymer"):
                 kwargs['skip']=1
