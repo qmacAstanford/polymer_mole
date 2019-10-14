@@ -11,7 +11,8 @@ def r2pdb(xyzFileName, nboundary=1000, skip=1, methFileName=None,
           scalebar=None, cube=None, ylimits=None, zlimits=None, period=None,
           fractionType1 = None, maxpoints = None, highlight_file=None,
           mirror=None, filter_meth = None, recenter=False,
-          ring=False,interPolyBonds=None,**kwargs):
+          ring=False,interPolyBonds=None,halo_file=None,
+          halo_offset=np.array([0.0,0.0,0.0]), **kwargs):
 
     """Convert xyzFileName into a pdb file ready for pymol.
 
@@ -35,7 +36,7 @@ def r2pdb(xyzFileName, nboundary=1000, skip=1, methFileName=None,
     mirror (list): [x reflection plane, y reflection plane, z reflection plane]
     filter_meth (string): filter to apply, e.g. "PNAS_window"
     recenter (bool): set start of chain to 0
-    interPolyBonds (str): file name of inter polymer bonds, origionally for Serena's problem 
+    interPolyBonds (str): file name of inter polymer bonds, origionally for Serena's problem
     ring (bool): is polymer a ring
     """
 
@@ -66,7 +67,7 @@ def r2pdb(xyzFileName, nboundary=1000, skip=1, methFileName=None,
     #----------------------
     #   Read interpolybonds file
     #----------------------
-    print(interPolyBonds)
+    #print(interPolyBonds)
     if (interPolyBonds is not None):
         otherEnds = np.loadtxt(interPolyBonds)
 
@@ -185,7 +186,7 @@ def r2pdb(xyzFileName, nboundary=1000, skip=1, methFileName=None,
         import bisect
         def same_polymer(i1, i2, origin=1):
             return bisect.bisect(starts,i1-origin) == bisect.bisect(starts,i2-origin)
-    
+
     # -----------------------------
     #    Fudge which beads are in which periods (optional)
     # -----------------------------
@@ -200,7 +201,7 @@ def r2pdb(xyzFileName, nboundary=1000, skip=1, methFileName=None,
                 period_temp2 = period_list[bead+1]
             else:
                 period_temp2 = None
-                
+
             if period_temp1 is None and period_temp2 is None:
                 continue
 
@@ -221,12 +222,11 @@ def r2pdb(xyzFileName, nboundary=1000, skip=1, methFileName=None,
             period_list[bead] = copy(period_temp)
 
 
-            
+
     if recenter:
         X = np.array(X)-X[0]
         Y = np.array(Y)-Y[0]
         Z = np.array(Z)-Z[0]
-
 
     # -------------------------
     #  Set atom types
@@ -249,6 +249,7 @@ def r2pdb(xyzFileName, nboundary=1000, skip=1, methFileName=None,
 
     if color_cohisn:
         ColorCohesin(atomType,leftends,index)
+
 
 
     # -------------------
@@ -291,7 +292,31 @@ def r2pdb(xyzFileName, nboundary=1000, skip=1, methFileName=None,
                         print('CONECT%5d%5d'%(n, n-polymerLengthFile+1),file=file_obj)
                     continue # don't connect seperate polymers
             print('CONECT%5d%5d'%(n, n+1),file=file_obj)
-    
+
+    # ---------------------
+    #   Draw halo
+    # -----------------------
+    if (halo_file is not None):
+        n=nbeads
+        halo_data = np.loadtxt(halo_file,dtype=type(1))
+        for bead in range(nbeads):
+            halo_value = halo_data[index[bead]-1]
+            if halo_value > 0:
+                x=X[bead]+halo_offset[0]
+                y=Y[bead]+halo_offset[1]
+                z=Z[bead]+halo_offset[2]
+                index.append(-20)
+                METH.append(halo_value)
+                atomName='H'+str(halo_value)
+                if len(atomName)>4:
+                    raise ValueError("max halo values must be <= 999")
+                while len(atomName)<4:
+                    atomName=atomName+' '
+                print('HETATM%5d %s %s          %8.3f%8.3f%8.3f  1.00  1.00           C'
+                    %(n+1,atomName,resname,x,y,z),file=file_obj)
+                n=n+1
+                nbeads=nbeads+1
+
     if (interPolyBonds is not None):
         if (skip > 1):
             raise ValueError("skip not implemented with interPolyBonds")
@@ -299,8 +324,8 @@ def r2pdb(xyzFileName, nboundary=1000, skip=1, methFileName=None,
             if otherEnd == 0:
                 continue
             print('CONECT%5d%5d'%(ii+1, otherEnd),file=file_obj)
-            
-            
+
+
 
     if ring and polymerLengthFile is None:
         print('CONECT%5d%5d'%(n+1, 1),file=file_obj)

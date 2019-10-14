@@ -173,14 +173,15 @@ def stringify(my_float):
 #        baseNames[direct] = \
 #                len(open(direct+'data/energies').readlines())-2
 #baseNames = {"../../../../rk22/verylongTwist070919/":0}
-baseNames = {'../../../../sdebesai/wlcsim/':18}
+#baseNames = {'../../../../sdebesai/wlcsim/':18}
+baseNames = {'../../../../sarah16/test_halo_plot/':1}
 kwargs ={}
 import os
 for baseName in baseNames.keys():
     savept_max = baseNames[baseName]
     for savept in [savept_max]: #[2,3,4,7,8,9,12]: #[savept_max]: #[0,5,9]: #range(0,111,20):
 
-        for rep in [0]: #range(1,16): #range(1,8): #range(2,10): #[2,4,6,7,8,9,10,11,12,14]:
+        for rep in [1]: #range(1,16): #range(1,8): #range(2,10): #[2,4,6,7,8,9,10,11,12,14]:
             if True:
                 suffix = "v"+str(rep)
             else:
@@ -202,6 +203,29 @@ for baseName in baseNames.keys():
             image = "Cube"
             image = "single_polymer"
             image = "sdebesai"
+            image = "halo1"
+
+            if (image == "halo1"):
+                kwargs['skip']=1
+                kwargs['Ncolors'] = None
+                kwargs['color_type'] = "meth"
+                kwargs['colorOption'] = "H3K9me3"
+                kwargs['circles'] = [(31.0,[32.0,32.0,32.0])]
+                kwargs['xlimits']=None # [32,36]
+                kwargs['scalebar']=250/28.7
+                kwargs['methFileName'] = baseName+"input/meth"
+                kwargs['color_cohisn']=False
+                kwargs['bindFileName']=None
+                kwargs['color_palette']=None
+                kwargs['ball_radius'] = 0.198
+                kwargs['stick_radius']=0.05
+                kwargs['cube']=None
+                kwargs['view']="sarah"
+                kwargs['polymerLengthFile'] = None
+                kwargs['halo_file']=baseName+"data/h"+str(savept)+suffix
+                kwargs['halo_max']=1
+                kwargs['halo_offset']=[0.15,0.0,0.0]
+                kwargs['halo_size']=1.5
 
             if (image=="sdebesai"):
                 kwargs['skip']=1

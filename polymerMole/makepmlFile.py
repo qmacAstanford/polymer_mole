@@ -4,7 +4,9 @@ from polymerMole.glob import *
 def makepmlFile(OutName="out.png", colorOption="H3K9me3",
                 Ncolors=default_Ncolors, closePymol=True, ball_radius=0.085,
                 color_palette='hls', stick_radius=0.05, view = "cube",
-                highlightPolymers = None, boundary_thickness=0.15, **kwargs):
+                highlightPolymers = None, boundary_thickness=0.15, halo_max=-1,
+                halo_size=1.2,
+                **kwargs):
     """ Make a pml comand file for pymol and run pymol to generate a png.
 
     Args:
@@ -25,6 +27,18 @@ def makepmlFile(OutName="out.png", colorOption="H3K9me3",
     hide all
     bg_color white
     """))
+
+    myfile.write("""set_color halo_color, [0.0, 1.0, 0.0]""")
+    for h in range(0,halo_max+1):
+        myfile.write(textwrap.dedent("""
+        show spheres, (name H""" + str(h) + """)
+        color halo_color, (name H""" + str(h) + """)
+        alter (name H""" + str(h) + """),vdw=""" +str(ball_radius*halo_size) + """
+        show sticks, (name H""" + str(h) + """)
+        hide lines, (name H""" + str(h) + """)\n """))
+        myfile.write("set sphere_transparency="+str(1.0-float(h)/halo_max)+", H"+str(h)+"\n")
+
+
     if (colorOption == "highlight_homopoly"):
         myfile.write(textwrap.dedent("""
         set_color color1, [1.0, 0.0, 0.0]
@@ -244,6 +258,17 @@ def makepmlFile(OutName="out.png", colorOption="H3K9me3",
              0.000003330,    0.000002887,  -74.053474426,\
              9.356276512,   25.627843857,   23.458267212,\
           -133.947280884,  303.052459717,  -20.000000000 )
+        """))
+    if (view =="sarah"):
+        myfile.write(textwrap.dedent("""
+        set_view (\
+             0.000000000,    0.000000000,   -1.000000000,\
+             1.000000000,    0.000000000,    0.000000000,\
+             0.000000000,   -1.000000000,   -0.000000000,\
+             0.000002684,    0.000009418, -260.142150879,\
+            30.736551285,   21.463550568,   30.930513382,\
+            52.141902924,  489.141906738,  -20.000000000 )
+
         """))
 
 
