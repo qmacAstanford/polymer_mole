@@ -28,16 +28,6 @@ def makepmlFile(OutName="out.png", colorOption="H3K9me3",
     bg_color white
     """))
 
-    myfile.write("""set_color halo_color, [0.0, 1.0, 0.0]""")
-    for h in range(0,halo_max+1):
-        myfile.write(textwrap.dedent("""
-        show spheres, (name H""" + str(h) + """)
-        color halo_color, (name H""" + str(h) + """)
-        alter (name H""" + str(h) + """),vdw=""" +str(ball_radius*halo_size) + """
-        show sticks, (name H""" + str(h) + """)
-        hide lines, (name H""" + str(h) + """)\n """))
-        myfile.write("set sphere_transparency="+str(1.0-float(h)/halo_max)+", H"+str(h)+"\n")
-
 
     if (colorOption == "highlight_homopoly"):
         myfile.write(textwrap.dedent("""
@@ -170,6 +160,37 @@ def makepmlFile(OutName="out.png", colorOption="H3K9me3",
         hide lines, (name C1)
 
         """))
+
+    # ------------------------------------------
+    #    Halo plotting
+    # ------------------------------------------
+    if halo_max>0:
+        for ii in range(0,3):
+            letter = ['U','S','D'][ii]
+            color = ["low_H3K9me3","med_H3K9me3",
+                     "high_H3K9me3"][ii]
+
+            for h in range(0,halo_max+1):
+                atomType = letter + str(h) 
+                myfile.write(textwrap.dedent("""
+                show spheres, (name """ + atomType + """)
+                color """+color+""", (name """ + atomType + """)
+                alter (name """ + atomType + """),vdw=""" +str(ball_radius*halo_size) + """
+                show sticks, (name """ + atomType + """)
+                hide lines, (name """ + atomType + """)\n """))
+                myfile.write("set sphere_transparency="+
+                             str(1.0-float(h)/halo_max)+", "+atomType+"\n")
+        if False: # OLD Way
+            for h in range(0,halo_max+1):
+                myfile.write(textwrap.dedent("""
+                show spheres, (name H""" + str(h) + """)
+                color halo_color, (name H""" + str(h) + """)
+                alter (name H""" + str(h) + """),vdw=""" +str(ball_radius*halo_size) + """
+                show sticks, (name H""" + str(h) + """)
+                hide lines, (name H""" + str(h) + """)\n """))
+                myfile.write("set sphere_transparency="+
+                             str(1.0-float(h)/halo_max)+", H"+str(h)+"\n")
+
 
     #Set view
     myfile.write(textwrap.dedent("""

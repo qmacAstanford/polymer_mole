@@ -307,7 +307,18 @@ def r2pdb(xyzFileName, nboundary=1000, skip=1, methFileName=None,
                 z=Z[bead]+halo_offset[2]
                 index.append(-20)
                 METH.append(halo_value)
-                atomName='H'+str(halo_value)
+                if False: # old way of doing things
+                    atomName='H'+str(halo_value)
+                
+                if METH[bead] == 0:
+                    atomName='U'+str(halo_value)
+                elif METH[bead] == 1:
+                    atomName='S'+str(halo_value)
+                elif METH[bead] == 2:
+                    atomName='D'+str(halo_value)
+                else:
+                    raise ValueError("METH value must be <=2")
+
                 if len(atomName)>4:
                     raise ValueError("max halo values must be <= 999")
                 while len(atomName)<4:
@@ -316,6 +327,9 @@ def r2pdb(xyzFileName, nboundary=1000, skip=1, methFileName=None,
                     %(n+1,atomName,resname,x,y,z),file=file_obj)
                 n=n+1
                 nbeads=nbeads+1
+
+    if nbeads > 99999:
+        raise 'too many beads for pdb format'
 
     if (interPolyBonds is not None):
         if (skip > 1):
