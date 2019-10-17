@@ -179,7 +179,7 @@ def makepmlFile(OutName="out.png", colorOption="H3K9me3",
                 show sticks, (name """ + atomType + """)
                 hide lines, (name """ + atomType + """)\n """))
                 myfile.write("set sphere_transparency="+
-                             str(1.0-float(h)/halo_max)+", "+atomType+"\n")
+                             str(1.0-float(h)/halo_max)+", (name "+atomType+")\n")
         if False: # OLD Way
             for h in range(0,halo_max+1):
                 myfile.write(textwrap.dedent("""
@@ -189,7 +189,7 @@ def makepmlFile(OutName="out.png", colorOption="H3K9me3",
                 show sticks, (name H""" + str(h) + """)
                 hide lines, (name H""" + str(h) + """)\n """))
                 myfile.write("set sphere_transparency="+
-                             str(1.0-float(h)/halo_max)+", H"+str(h)+"\n")
+                             str(1.0-float(h)/halo_max)+", (name H"+str(h)+")\n")
 
 
     #Set view
