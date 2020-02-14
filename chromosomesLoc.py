@@ -174,14 +174,15 @@ def stringify(my_float):
 #                len(open(direct+'data/energies').readlines())-2
 #baseNames = {"../../../../rk22/verylongTwist070919/":0}
 #baseNames = {'../../../../sdebesai/wlcsim/':18}
-baseNames = {'../../../../sarah16/test_halo_plot/':1}
+#baseNames = {'../../../../sarah16/test_halo_plot/':1}
+baseNames = {'../wlcsim/':10}
 kwargs ={}
 import os
 for baseName in baseNames.keys():
     savept_max = baseNames[baseName]
     for savept in [savept_max]: #[2,3,4,7,8,9,12]: #[savept_max]: #[0,5,9]: #range(0,111,20):
 
-        for rep in [1]: #range(1,16): #range(1,8): #range(2,10): #[2,4,6,7,8,9,10,11,12,14]:
+        for rep in [7]: #range(1,16): #range(1,8): #range(2,10): #[2,4,6,7,8,9,10,11,12,14]:
             if True:
                 suffix = "v"+str(rep)
             else:
@@ -204,6 +205,32 @@ for baseName in baseNames.keys():
             image = "single_polymer"
             image = "sdebesai"
             image = "halo1"
+            image = "Cube"
+            image = "sedona"
+
+            if (image=="sedona"): # Cube
+                kwargs['skip']=1
+                kwargs['Ncolors'] = None
+                kwargs['color_type'] = "meth"
+                kwargs['colorOption'] = "H3K9me3"
+                kwargs['circles'] = None
+                kwargs['xlimits'] = None
+                kwargs['scalebar']=250/28.7
+                kwargs['methFileName'] = baseName+"input/meth"
+                kwargs['color_cohisn']=False
+                kwargs['bindFileName']=None
+                kwargs['color_palette']=None
+                kwargs['ball_radius'] = 0.198
+                kwargs['stick_radius']=0.05
+                kwargs['cube']=[0,64]
+                kwargs['view']="cube"
+                kwargs['polymerLengthFile'] = 2000
+                kwargs['period'] = (64.0, 64.0, 64.0)
+                #kwargs['ylimits'] = [26,38] # what I use most of the time
+                #kwargs['ylimits'] = [29,35] # for when I run out of beads
+                #kwargs['zlimits'] = [0,32]
+                #kwargs['filter_meth'] = 'PNAS_window'
+                #kwargs['mirror'] = [None, None, 32]
 
             if (image == "halo1"):
                 kwargs['skip']=1
